@@ -1,0 +1,90 @@
+package newproject;
+
+import java.util.List;
+import java.awt.Robot;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class CU {
+	public static void main(String[] args) {
+		CU selTest = new CU();
+		selTest.crawl();
+	}
+	private WebDriver driver;
+	
+	public static final String WEB_DRIVER_ID = "webdriver.chrome.driver";
+	public static final String WEB_DRIVER_PATH = "C:/chromedriver.exe";
+	
+	private String base_url;
+	
+	public CU() {
+		  	super();
+		  
+	        //System Property SetUp
+	        System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
+	        
+	        //Driver SetUp
+	        driver = new ChromeDriver();
+	        base_url = "http://cu.bgfretail.com/event/plus.do?category=event&depth2=1&sf=N";
+	        
+	        
+	        
+	    }
+	public void crawl() {
+		 
+		   try {
+	            //get page (= 브라우저에서 url을 주소창에 넣은 후 request 한 것과 같다)
+	            driver.get(base_url);
+	            Robot tRobot = new Robot();
+	            
+	            while(true) {
+	            	List<WebElement> posts = driver.findElements(By.xpath(".//div[@class='prodListBtn-w']/a"));
+	            	if(posts.isEmpty()) {break;}
+	            	String ss = posts.get(0).getAttribute("href");
+	            	driver.findElement(By.xpath("//a[@href='"+ss+"']")).click();
+	            	tRobot.delay(32*1000);	
+	           }
+	            
+	            List<WebElement> tagName = driver.findElements(By.className("prodName"));
+	            List<WebElement> Nprice = driver.findElements(By.className("prodPrice"));
+	            List<WebElement> Nphoto = driver.findElements(By.xpath(".//div[@class='photo']/a/img"));
+	            int count = 1;
+	            int li = 1;
+	            for(int i=0; i<tagName.size()-3; i++) {
+	               WebElement plus = driver.findElement(By.xpath("//*[@id=\"contents\"]/div[1]/div[2]/ul["+count+"]/li["+li+"]/ul/li"));
+	               li++;
+	               if(li > 40){count ++; li = 1;}
+	               String name = tagName.get(i).getAttribute("innerHTML");
+	               String price = Nprice.get(i).getAttribute("innerHTML");
+	               String photo = Nphoto.get(i).getAttribute("src");
+	               String plus2 = plus.getAttribute("innerHTML");
+		           int k = name.indexOf('>');
+		           name = name.substring(k+1, name.length()-1);
+		           k = name.indexOf('<');
+		           name = name.substring(0,k);
+		           int k1 = price.indexOf('>');
+		           price = price.substring(k1+1, price.length()-1);
+		           k1 = price.indexOf('<');
+		           price = price.substring(0,k1);
+		           System.out.println(name+", "+price+"원, "+photo+", "+plus2);
+	            }
+	            
+	         
+	    
+	        } catch (Exception e) {
+	            
+	            e.printStackTrace();
+	        
+	        } finally {
+	 
+	            driver.close();
+	        }
+	 
+ 
+    }
+ 
+}
